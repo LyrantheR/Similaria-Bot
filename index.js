@@ -8,7 +8,15 @@ const CommandHandler = require('dbot-regex-handler');
 client.handler = new CommandHandler();
 client.on('ready', () => {
     client.user.setStatus('online');
-    client.user.setGame('DEV VERSION');
+    client.user.setGame('DEV VERSION v0.67');
+   for (i = 0; i < client.guilds.array().length - 1; i++) {
+    try {
+    client.guilds.array()[i].channels.find("name", "votes").fetchMessages();
+   }
+   catch(error) {
+      console.log("no chat!");
+   }
+   }
 });
 client.handler.endpoint(/^test$/, (match, message) => {
   message.channel.send('First test command');
@@ -17,6 +25,21 @@ client.handler.endpoint(/^test +(\S.+)$/, (match, message) => {
   message.channel.send('Second test command');
   message.channel.send(match[1]);
 });
+client.handler.endpoint(/^massdel +(.+)$/, async (match, message) => {
+  try {
+    if (message.member.hasPermission('MANAGE_MESSAGES')) {
+    let messages = await message.channel.fetchMessages({ limit: match[1] });
+    message.channel.bulkDelete(messages);
+    message.channel.send(`Deleted ${messages.array().length} messages!`);
+    }
+    else {
+      message.channel.send('No permissions!');
+    }
+  }
+  catch(error) {
+    console.log("fail!");
+  }
+});
 client.handler.endpoint(/^mute +(\S.+)$/, (match, message) => {
         let role = message.guild.roles.find("name", "Similaria-Muted");
         let member = message.guild.member(message.mentions.users.first()) || message.guild.members.get(match[1]);
@@ -24,6 +47,25 @@ client.handler.endpoint(/^mute +(\S.+)$/, (match, message) => {
             member.addRole(role.id);
             message.channel.send('muted ' + member.displayName + '!');
         }
+        else {
+          message.channel.send('No permissions!');
+        }
+});
+client.handler.endpoint(/^unmute +(\S.+)$/, (match, message) => {
+  let role = message.guild.roles.find("name", "Similaria-Muted");
+  let member = message.guild.member(message.mentions.users.first()) || message.guild.members.get(match[1]);
+  if (message.member.hasPermission('MUTE_MEMBERS')) {
+    try {
+      member.removeRole(role);
+      message.channel.send(`Unmuted ${member.displayName}!`);
+    }
+    catch(error) {
+      message.channel.send(`Failed!`);
+    }
+  }
+  else {
+    message.channel.send(`No permissions!`);
+  }
 });
 client.on('message', async (msg) => {
   if (msg.author.bot) return;
@@ -104,6 +146,19 @@ client.on('messageDelete', async (msg) => {
        console.log("no log chat!");
     }
 
+});
+client.on('messageReactionAdd', (reaction, user) => {
+    if (reaction.message.channel == reaction.message.guild.channels.find("name", "votes")) {
+        if (reaction.emoji.name == '👍' || reaction.emoji.name == '👎') {
+            console.log("normal, pass!");
+        }
+        else if (reaction.emoji.name.startsWith('yea') || reaction.emoji.name.startsWith('nay')) {
+            console.log("normal, pass!");
+        }
+        else {
+            reaction.remove(user);
+        }
+    }
 });
 client.on('roleUpdate', (oldRole, newRole) => {
     try {
