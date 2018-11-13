@@ -8,7 +8,7 @@ const CommandHandler = require('dbot-regex-handler');
 client.handler = new CommandHandler();
 client.on('ready', () => {
     client.user.setStatus('online');
-    client.user.setGame('DEV VERSION v0.67');
+    client.user.setGame('DEV VERSION v0.7');
    for (i = 0; i < client.guilds.array().length - 1; i++) {
     try {
     client.guilds.array()[i].channels.find("name", "votes").fetchMessages();
@@ -66,6 +66,11 @@ client.handler.endpoint(/^unmute +(\S.+)$/, (match, message) => {
   else {
     message.channel.send(`No permissions!`);
   }
+});
+client.handler.endpoint(/^about$/, async (match, message) => {
+  let Lyra = client.users.find("id", '201363162635829248');
+  let ffsi = client.guilds.find("id", "506153726629642255");
+  message.channel.send(`A bot created by ${Lyra.username} for the ${ffsi.name} server (${(await ffsi.fetchInvites()).array()}). You can find its repo at https://github.com/LyrantheR/Similaria-Bot.`);
 });
 client.on('message', async (msg) => {
   if (msg.author.bot) return;
