@@ -8,7 +8,7 @@ const CommandHandler = require('dbot-regex-handler');
 client.handler = new CommandHandler();
 client.on('ready', () => {
     client.user.setStatus('online');
-    client.user.setGame('DEV VERSION v0.73');
+    client.user.setGame('DEV VERSION v0.73b');
    for (i = 0; i < client.guilds.array().length - 1; i++) {
     try {
     client.guilds.array()[i].channels.find("name", "votes").fetchMessages();
@@ -84,21 +84,23 @@ client.on('guildMemberRemove', member => {
             let channel = member.guild.channels.find("name", "logs");
             let em = new Discord.RichEmbed();
             em.setTitle(member.displayName + " left the server...");
+            em.setFooter(new Date());
             channel.send(em);
     });
 client.on('guildMemberAdd', member => {
-            if (guild.id === "506153726629642255") {
+            if (member.guild.id === "506153726629642255") {
             if (member.user.bot == true) {
                 member.addRole('506188251875377171');
             }
             else {
                 member.addRole('506190966273605645');
             }
+            }
             let channel = member.guild.channels.find("name", "logs");
             let em = new Discord.RichEmbed();
             em.setTitle(member.displayName + " Joined the server!");
+            em.setFooter(new Date());
             channel.send(em);
-            }
     });
 client.on('guildMemberUpdate', (oldMember, newMember) => {
     try {
@@ -118,6 +120,7 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     if (oldMember.nickname != newMember.nickname) {
         em.addField('Nickname Updated', oldMember.nickname + ' to ' + newMember.nickname);
     }
+    em.setFooter(new Date());
     channel.send(em);
     }
     catch(error) {
@@ -152,6 +155,7 @@ client.on('messageDelete', async (msg) => {
     catch(error) {
         console.log("pass");
     }
+    em.setFooter(new Date());
     channel.send(em);
     }
     }
@@ -218,6 +222,7 @@ client.on('roleUpdate', (oldRole, newRole) => {
     if (oldRole.name != newRole.name) {
         em.addField("Name Changed", oldRole.name + ' to ' + newRole.name);
     }
+    em.setFooter(new Date());
     channel.send(em);
     }
     catch(error) {
