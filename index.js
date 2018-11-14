@@ -106,7 +106,14 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     let em = new Discord.RichEmbed();
     em.setTitle('User updated for ' +  oldMember.displayName);
     if (!oldMember.roles.equals(newMember.roles)) {
-        em.addField('Roles updated', oldMember.roles.array().toString() + ' to ' + newMember.roles.array().toString());
+        let intersection = oldMember.roles.array().filter(x => !newMember.roles.array().includes(x));
+        if (intersection === undefined || intersection.length == 0) {
+          intersection = newMember.roles.array().filter(x => !oldMember.roles.array().includes(x));
+          em.setDescription(`Added ${intersection}`);
+        }
+        else {
+          em.setDescription(`Removed ${intersection}`);
+        }
     }
     if (oldMember.nickname != newMember.nickname) {
         em.addField('Nickname Updated', oldMember.nickname + ' to ' + newMember.nickname);
@@ -115,6 +122,7 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     }
     catch(error) {
        console.log("no log chat!");
+       console.log(error);
     }
 });
 client.on('messageDelete', async (msg) => {
@@ -154,7 +162,16 @@ client.on('messageDelete', async (msg) => {
 });
 client.on('messageReactionAdd', (reaction, user) => {
     if (reaction.message.channel == reaction.message.guild.channels.find("name", "votes")) {
-        if (reaction.emoji.name == '👍' || reaction.emoji.name == '👎') {
+        let users = []
+        for (i = 0; i < reaction.message.reactions.array().length; i++) {
+          for (l = 0; l < reaction.message.reactions.array()[i].users.array().length; l++) {
+            users.push(reaction.message.reactions.array()[i].users.array()[l].id);
+          }
+        }
+        if (find_duplicate_in_array(users).includes(user.id)) {
+          reaction.remove(user);
+        }
+        else if (reaction.emoji.name == '👍' || reaction.emoji.name == '👎') {
             console.log("normal, pass!");
         }
         else if (reaction.emoji.name.startsWith('yea') || reaction.emoji.name.startsWith('nay')) {
@@ -165,6 +182,25 @@ client.on('messageReactionAdd', (reaction, user) => {
         }
     }
 });
+function find_duplicate_in_array(arra1) {
+        var object = {};
+        var result = [];
+
+        arra1.forEach(function (item) {
+          if(!object[item])
+              object[item] = 0;
+            object[item] += 1;
+        })
+
+        for (var prop in object) {
+           if(object[prop] >= 2) {
+               result.push(prop);
+           }
+        }
+
+        return result;
+
+    }
 client.on('roleUpdate', (oldRole, newRole) => {
     try {
     let channel = newRole.guild.channels.find("name", "logs");
