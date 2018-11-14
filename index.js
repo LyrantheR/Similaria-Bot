@@ -8,7 +8,7 @@ const CommandHandler = require('dbot-regex-handler');
 client.handler = new CommandHandler();
 client.on('ready', () => {
     client.user.setStatus('online');
-    client.user.setGame('DEV VERSION v0.7');
+    client.user.setGame('DEV VERSION v0.73');
    for (i = 0; i < client.guilds.array().length - 1; i++) {
     try {
     client.guilds.array()[i].channels.find("name", "votes").fetchMessages();
